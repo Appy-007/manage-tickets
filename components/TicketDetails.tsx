@@ -1,0 +1,131 @@
+"use client";
+
+import { PiWarningCircle } from "react-icons/pi";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { FiUser } from "react-icons/fi";
+import { SlCalender } from "react-icons/sl";
+import { FaArrowLeft } from "react-icons/fa6";
+import { FaRegEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import { useRouter } from "next/navigation";
+import AddEditTicketModal from "./AddEditTicket";
+import { useState } from "react";
+import { DialogTrigger } from "./ui/dialog";
+import DeleteConfirmationModal from "./DeleteConfirmation";
+import { TicketStatus } from "@/lib/types";
+
+const ticket = {
+  id: "TIC-001",
+  title: "Fix login page overflow",
+  description:
+    "The login button is overlapping with the footer on mobile screens.",
+  status: "in_progress" as TicketStatus,
+  priority: "1" as "1" | "2" | "3" | "4" | "5",
+  createdAt: "2026-02-15T09:00:00Z",
+  updatedAt: "2026-02-15T09:00:00Z",
+  assignee: "user_01",
+};
+
+export default function TicketDetails() {
+  const router = useRouter();
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [ticketDetails, setTicketDetails] = useState(ticket);
+
+  return (
+    <>
+      <div className="pt-4 pl-16 pr-6">
+        <div className="flex gap-6">
+          <Button variant="ghost" onClick={() => router.back()}>
+            <FaArrowLeft />
+          </Button>
+          <h1 className="text-2xl font-semibold">Ticket Details</h1>
+        </div>
+        <div className="p-6 pr-4 pl-4 rounded-md border border-gray-400 mt-6">
+          <div className="flex justify-between">
+            <div className="flex-1 flex gap-2">
+              <h1 className="font-bold">{ticket.title}</h1>
+              <div>
+                {" "}
+                <Badge>{ticket.status}</Badge>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowEditModal(true)}
+                variant={"outline"}
+              >
+                <FaRegEdit />
+              </Button>
+              <Button
+                onClick={() => setShowDeleteModal(true)}
+                variant={"outline"}
+                className="text-red-500"
+              >
+                <MdDelete />
+              </Button>
+            </div>
+          </div>
+
+          <div className="text-xs flex gap-4 mt-4">
+            <div className="flex gap-1 items-center">
+              {" "}
+              <PiWarningCircle /> <span>Priority {ticket.priority}</span>
+            </div>
+            {ticket.assignee && (
+              <div className="flex gap-1 items-center">
+                {" "}
+                <FiUser /> <span>User {ticket.assignee}</span>
+              </div>
+            )}
+            <div className="flex gap-1 items-center">
+              {" "}
+              <SlCalender /> <span>{ticket.createdAt}</span>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <h2 className="font-semibold">Description</h2>
+            <p className="text-gray-600 text-sm">{ticket.description}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mt-4 text-md">
+            <div>
+              <h4 className="text-sm text-gray-500">Status</h4>
+              <p>{ticket.status}</p>
+            </div>
+            <div>
+              <h4 className="text-sm text-gray-500">Priority</h4>
+              <p>{ticket.priority}</p>
+            </div>
+            <div>
+              <h4 className="text-sm text-gray-500">Created At</h4>
+              <p>{ticket.createdAt}</p>
+            </div>
+            <div>
+              <h4 className="text-sm text-gray-500">Assignee</h4>
+              <p>{ticket.assignee}</p>
+            </div>
+          </div>
+
+          {showEditModal && (
+            <AddEditTicketModal
+              modalTitle="Edit Ticket"
+              modalDescription={"Update the ticket details below"}
+              open={showEditModal}
+              onClose={() => setShowEditModal((prev) => !prev)}
+              selectedTicket={ticketDetails}
+            />
+          )}
+          {showDeleteModal && (
+            <DeleteConfirmationModal
+              open={showDeleteModal}
+              onClose={() => setShowDeleteModal((prev) => !prev)}
+            />
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
