@@ -19,7 +19,6 @@ export async function GET(
     if (!response) {
       throw new Error("Ticket not found");
     }
-    console.log(response);
     return NextResponse.json(
       { data: response, message: "success" },
       { status: 200 },

@@ -67,7 +67,6 @@ export default function AddEditTicketModal({
   });
 
   useEffect(() => {
-    console.log("Selected Ticket: ", selectedTicket);
     if (selectedTicket) {
       reset(selectedTicket);
     } else {
@@ -86,7 +85,6 @@ export default function AddEditTicketModal({
   const { mutate, isPending } = useMutation({
     mutationFn: async (newTicket: ticketSchema) => {
       const url= mode === "add" ? "/api/tickets" : `/api/tickets/${selectedTicket?._id}`
-      console.log("url",url)
       const response = mode === "add" ?  await axios.post(url, newTicket) : await axios.patch(url, newTicket);
       return response.data;
     },
@@ -94,7 +92,6 @@ export default function AddEditTicketModal({
       const queryKeyArr= mode === "add" ? ["tickets"] : [`ticketDetails`, selectedTicket?._id]
       
       queryClient.invalidateQueries({ queryKey: queryKeyArr });
-      console.log(`Ticket ${mode === "add" ? "created" : "updated"} successfully!`);
       toast.success(`Ticket ${mode === "add" ? "created" : "updated"} successfully!`)
       reset();
       onClose();
@@ -106,7 +103,6 @@ export default function AddEditTicketModal({
   });
 
   const onSubmit = (data: ticketSchema) => {
-    console.log("Validated Data:", data);
     mutate(data);
   };
 
