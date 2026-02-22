@@ -27,12 +27,12 @@ export default function DeleteConfirmationModal({
       >
         <div className="flex gap-4">
           <div>
-            <Button variant={"outline"} onClick={onClose}>
+            <Button className="cursor-pointer" variant={"outline"} onClick={onClose}>
               Cancel
             </Button>
           </div>
           <div>
-            <Button onClick={onDelete} variant={"destructive"}>{loading ? "Deleting..." : "Delete"}</Button>
+            <Button className="cursor-pointer" onClick={onDelete} variant={"destructive"}>{loading ? "Deleting..." : "Delete"}</Button>
           </div>
         </div>
         {error && <p className="text-red-500">{error.message}</p>}

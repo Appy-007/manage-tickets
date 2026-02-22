@@ -16,7 +16,8 @@ async function seed() {
     await Ticket.deleteMany({});
     console.log("Old data removed");
 
-    await Ticket.insertMany([
+    await Ticket.insertMany(
+      [
       {
         title: "Login page not working",
         description: "Users are unable to login using Google OAuth.",

@@ -247,7 +247,7 @@ export default function AddEditTicketModal({
                 </FieldGroup>
               </FieldSet>
               <Field orientation="horizontal">
-                <Button disabled={isPending} type="submit">
+                <Button className="cursor-pointer" disabled={isPending} type="submit">
                   {mode === "add"
                     ? isPending
                       ? "Creating Ticket..."
@@ -256,7 +256,7 @@ export default function AddEditTicketModal({
                       ? "Updating Ticket..."
                       : "Update Ticket"}
                 </Button>
-                <Button variant="outline" type="button" onClick={onClose}>
+                <Button className="cursor-pointer" variant="outline" type="button" onClick={onClose}>
                   Cancel
                 </Button>
               </Field>

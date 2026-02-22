@@ -12,9 +12,8 @@ import { useRouter } from "next/navigation";
 import AddEditTicketModal from "./AddEditTicket";
 import { useState } from "react";
 import DeleteConfirmationModal from "./DeleteConfirmation";
-import { TicketStatus } from "@/lib/types";
 import axios from "axios";
-import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formattedDate } from "@/lib/dateFormat";
 
@@ -30,18 +29,15 @@ import { formattedDate } from "@/lib/dateFormat";
 //   assignee: "user_01",
 // };
 
-export default function TicketDetails({id}:{id:string}) {
+export default function TicketDetails({ id }: { id: string }) {
   const router = useRouter();
-  console.log("ticket id",id)
   const queryClient = useQueryClient();
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  // const [ticketDetails, setTicketDetails] = useState(ticket);
 
   const fetchTicketById = async (id: string) => {
     try {
-      console.log("id in fetch function",id , typeof id )
       const response = await axios.get(`/api/tickets/${id}`);
       return response.data.data;
     } catch (error) {
@@ -52,12 +48,11 @@ export default function TicketDetails({id}:{id:string}) {
   const deleteTicket = async () => {
     try {
       const response = await axios.delete(`/api/tickets/${id}`);
-      console.log(response.data);
+      return response;
     } catch (error) {
       console.log(error);
     }
   };
-
 
   const {
     data: ticket,
@@ -69,7 +64,7 @@ export default function TicketDetails({id}:{id:string}) {
     queryFn: () => fetchTicketById(id),
   });
 
-  const mutation=useMutation({
+  const mutation = useMutation({
     mutationFn: deleteTicket,
     onSuccess: () => {
       router.back();
@@ -80,21 +75,41 @@ export default function TicketDetails({id}:{id:string}) {
       console.log(error);
       toast.error("Error deleting ticket!");
     },
-  })
+  });
 
   if (isLoading) {
-    return <span>Loading...</span>;
+    return (
+      <>
+        <div className="p-6 flex items-center justify-center">
+          <div>
+            <p className="font-bold text-xl">Loading Ticket Details...</p>
+          </div>
+        </div>
+      </>
+    );
   }
 
   if (isError) {
-    return <span>Error: {error.message}</span>;
+    return (
+      <>
+        <div className="p-6 flex items-center justify-center">
+          <div>
+            <p className="font-bold text-xl">Failed to load ticket details..</p>
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
     <>
       <div className="pt-4 pl-16 pr-6">
         <div className="flex gap-6">
-          <Button variant="ghost" onClick={() => router.back()}>
+          <Button
+            variant="ghost"
+            className="cursor-pointer"
+            onClick={() => router.back()}
+          >
             <FaArrowLeft />
           </Button>
           <h1 className="text-2xl font-semibold">Ticket Details</h1>
@@ -105,7 +120,17 @@ export default function TicketDetails({id}:{id:string}) {
               <h1 className="font-bold">{ticket.title}</h1>
               <div>
                 {" "}
-                <Badge>{ticket.status}</Badge>
+                <Badge
+                  className={`${
+                    ticket?.status === "open"
+                      ? "bg-blue-700"
+                      : ticket?.status === "in_progress"
+                        ? "bg-yellow-600"
+                        : "bg-green-700"
+                  } text-white`}
+                >
+                  {ticket.status}
+                </Badge>
               </div>
             </div>
             <div className="flex gap-2">
@@ -128,7 +153,18 @@ export default function TicketDetails({id}:{id:string}) {
           <div className="text-xs flex gap-4 mt-4">
             <div className="flex gap-1 items-center">
               {" "}
-              <PiWarningCircle /> <span>Priority {ticket.priority}</span>
+              <PiWarningCircle
+                className={`${
+                  ticket?.priority === "3"
+                    ? "text-yellow-600"
+                    : ticket?.priority === "4"
+                      ? "text-orange-600"
+                      : ticket?.priority === "5"
+                        ? "text-red-700"
+                        : ""
+                } `}
+              />{" "}
+              <span>Priority {ticket.priority}</span>
             </div>
             {ticket.assignee && (
               <div className="flex gap-1 items-center">
