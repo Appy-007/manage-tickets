@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Modal from "./Modal";
 import { Button } from "./ui/button";
 import {
@@ -21,7 +21,10 @@ import { Textarea } from "./ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { ticketSchema } from "@/lib/zodSchemas/ticketSchema";
-import {  TicketType } from "@/lib/types";
+import { TicketType } from "@/lib/types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { toast } from "sonner";
 
 export default function AddEditTicketModal({
   modalTitle,
@@ -29,12 +32,14 @@ export default function AddEditTicketModal({
   open,
   onClose,
   selectedTicket,
+  mode = "add",
 }: {
   modalTitle: string;
   modalDescription?: string;
   open: boolean;
   onClose: () => void;
-  selectedTicket?: TicketType
+  selectedTicket?: TicketType;
+  mode?: "add" | "edit";
 }) {
   // const [title, setTitle] = useState("");
   // const [description, setDescription] = useState("");
@@ -49,7 +54,7 @@ export default function AddEditTicketModal({
     handleSubmit,
     control,
     formState: { errors },
-    reset
+    reset,
   } = useForm<ticketSchema>({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
@@ -62,18 +67,47 @@ export default function AddEditTicketModal({
   });
 
   useEffect(() => {
-    console.log("Selected Ticket: ", selectedTicket)
+    console.log("Selected Ticket: ", selectedTicket);
     if (selectedTicket) {
       reset(selectedTicket);
     } else {
-      reset({ title: "", description: "", status: "open", priority: "1", assignee: ""});
+      reset({
+        title: "",
+        description: "",
+        status: "open",
+        priority: "1",
+        assignee: "",
+      });
     }
   }, [selectedTicket, reset, open]);
 
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (newTicket: ticketSchema) => {
+      const url= mode === "add" ? "/api/tickets" : `/api/tickets/${selectedTicket?._id}`
+      console.log("url",url)
+      const response = mode === "add" ?  await axios.post(url, newTicket) : await axios.patch(url, newTicket);
+      return response.data;
+    },
+    onSuccess: () => {
+      const queryKeyArr= mode === "add" ? ["tickets"] : [`ticketDetails`, selectedTicket?._id]
+      
+      queryClient.invalidateQueries({ queryKey: queryKeyArr });
+      console.log(`Ticket ${mode === "add" ? "created" : "updated"} successfully!`);
+      toast.success(`Ticket ${mode === "add" ? "created" : "updated"} successfully!`)
+      reset();
+      onClose();
+    },
+    onError: (error) => {
+      console.error(`Error ${mode === "add" ? "creating" : "updating"} ticket:`, error);
+      toast.error(`Error ${mode === "add" ? "creating" : "updating"} ticket`);
+    },
+  });
+
   const onSubmit = (data: ticketSchema) => {
     console.log("Validated Data:", data);
-    // Call your API here
-    onClose();
+    mutate(data);
   };
 
   return (
@@ -103,7 +137,11 @@ export default function AddEditTicketModal({
                     <FieldDescription className="text-xs">
                       Provide a clear and concise title (5-80 characters)
                     </FieldDescription>
-                    {errors.title && <p className="text-red-500 text-xs">{errors.title?.message}</p>}
+                    {errors.title && (
+                      <p className="text-red-500 text-xs">
+                        {errors.title?.message}
+                      </p>
+                    )}
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="description">Description</FieldLabel>
@@ -116,7 +154,11 @@ export default function AddEditTicketModal({
                       Provide Detailed Description about the issue (min 20
                       characters)
                     </FieldDescription>
-                    {errors.description && <p className="text-red-500 text-xs">{errors.description?.message}</p>}
+                    {errors.description && (
+                      <p className="text-red-500 text-xs">
+                        {errors.description?.message}
+                      </p>
+                    )}
                   </Field>
                   <div className="grid grid-cols-2 gap-4">
                     <Field>
@@ -147,7 +189,9 @@ export default function AddEditTicketModal({
                         )}
                       />
                       {errors.status && (
-                        <p className="text-red-500 text-xs">{errors.status?.message}</p>
+                        <p className="text-red-500 text-xs">
+                          {errors.status?.message}
+                        </p>
                       )}
                     </Field>
                     <Field>
@@ -176,7 +220,9 @@ export default function AddEditTicketModal({
                         )}
                       />
                       {errors.priority && (
-                        <p className="text-red-500 text-xs">{errors.priority?.message}</p>
+                        <p className="text-red-500 text-xs">
+                          {errors.priority?.message}
+                        </p>
                       )}
                     </Field>
                   </div>
@@ -193,13 +239,23 @@ export default function AddEditTicketModal({
                       Leave empty if not assigned yet
                     </FieldDescription>
                     {errors.assignee && (
-                    <p className="text-red-500 text-xs">{errors.assignee?.message}</p>
-                  )}
+                      <p className="text-red-500 text-xs">
+                        {errors.assignee?.message}
+                      </p>
+                    )}
                   </Field>
                 </FieldGroup>
               </FieldSet>
               <Field orientation="horizontal">
-                <Button type="submit">Create Ticket</Button>
+                <Button disabled={isPending} type="submit">
+                  {mode === "add"
+                    ? isPending
+                      ? "Creating Ticket..."
+                      : "Create Ticket"
+                    : isPending
+                      ? "Updating Ticket..."
+                      : "Update Ticket"}
+                </Button>
                 <Button variant="outline" type="button" onClick={onClose}>
                   Cancel
                 </Button>

@@ -1,7 +1,7 @@
 export type TicketStatus = "open" | "in_progress" | "resolved";
 
 export type TicketType={
-    id:string;
+    _id:string;
     title:string;
     description:string;
     status:TicketStatus;

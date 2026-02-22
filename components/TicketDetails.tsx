@@ -11,28 +11,84 @@ import { MdDelete } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import AddEditTicketModal from "./AddEditTicket";
 import { useState } from "react";
-import { DialogTrigger } from "./ui/dialog";
 import DeleteConfirmationModal from "./DeleteConfirmation";
 import { TicketStatus } from "@/lib/types";
+import axios from "axios";
+import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { formattedDate } from "@/lib/dateFormat";
 
-const ticket = {
-  id: "TIC-001",
-  title: "Fix login page overflow",
-  description:
-    "The login button is overlapping with the footer on mobile screens.",
-  status: "in_progress" as TicketStatus,
-  priority: "1" as "1" | "2" | "3" | "4" | "5",
-  createdAt: "2026-02-15T09:00:00Z",
-  updatedAt: "2026-02-15T09:00:00Z",
-  assignee: "user_01",
-};
+// const ticket = {
+//   _id: "TIC-001",
+//   title: "Fix login page overflow",
+//   description:
+//     "The login button is overlapping with the footer on mobile screens.",
+//   status: "in_progress" as TicketStatus,
+//   priority: "1" as "1" | "2" | "3" | "4" | "5",
+//   createdAt: "2026-02-15T09:00:00Z",
+//   updatedAt: "2026-02-15T09:00:00Z",
+//   assignee: "user_01",
+// };
 
-export default function TicketDetails() {
+export default function TicketDetails({id}:{id:string}) {
   const router = useRouter();
+  console.log("ticket id",id)
+  const queryClient = useQueryClient();
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [ticketDetails, setTicketDetails] = useState(ticket);
+  // const [ticketDetails, setTicketDetails] = useState(ticket);
+
+  const fetchTicketById = async (id: string) => {
+    try {
+      console.log("id in fetch function",id , typeof id )
+      const response = await axios.get(`/api/tickets/${id}`);
+      return response.data.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteTicket = async () => {
+    try {
+      const response = await axios.delete(`/api/tickets/${id}`);
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  const {
+    data: ticket,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: [`ticketDetails`, id],
+    queryFn: () => fetchTicketById(id),
+  });
+
+  const mutation=useMutation({
+    mutationFn: deleteTicket,
+    onSuccess: () => {
+      router.back();
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      toast.success("Ticket deleted successfully!");
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.error("Error deleting ticket!");
+    },
+  })
+
+  if (isLoading) {
+    return <span>Loading...</span>;
+  }
+
+  if (isError) {
+    return <span>Error: {error.message}</span>;
+  }
 
   return (
     <>
@@ -82,7 +138,7 @@ export default function TicketDetails() {
             )}
             <div className="flex gap-1 items-center">
               {" "}
-              <SlCalender /> <span>{ticket.createdAt}</span>
+              <SlCalender /> <span>{formattedDate(ticket?.createdAt)}</span>
             </div>
           </div>
 
@@ -101,11 +157,11 @@ export default function TicketDetails() {
             </div>
             <div>
               <h4 className="text-sm text-gray-500">Created At</h4>
-              <p>{ticket.createdAt}</p>
+              <p>{formattedDate(ticket?.createdAt)}</p>
             </div>
             <div>
               <h4 className="text-sm text-gray-500">Assignee</h4>
-              <p>{ticket.assignee}</p>
+              <p>{ticket.assignee ? ticket.assignee : "__"}</p>
             </div>
           </div>
 
@@ -115,13 +171,17 @@ export default function TicketDetails() {
               modalDescription={"Update the ticket details below"}
               open={showEditModal}
               onClose={() => setShowEditModal((prev) => !prev)}
-              selectedTicket={ticketDetails}
+              selectedTicket={ticket}
+              mode="edit"
             />
           )}
           {showDeleteModal && (
             <DeleteConfirmationModal
               open={showDeleteModal}
               onClose={() => setShowDeleteModal((prev) => !prev)}
+              onDelete={mutation.mutate}
+              loading={mutation?.isLoading}
+              error={mutation.error}
             />
           )}
         </div>

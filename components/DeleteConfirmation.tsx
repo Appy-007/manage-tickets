@@ -1,12 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useMutation } from "@tanstack/react-query";
 import Modal from "./Modal";
 import { Button } from "./ui/button";
 
 export default function DeleteConfirmationModal({
   open,
   onClose,
+  onDelete,
+  loading,
+  error,
 }: {
   open: boolean;
   onClose: () => void;
+  onDelete: () => void;
+  loading: boolean;
+  error: any;
 }) {
   return (
     <>
@@ -24,9 +32,10 @@ export default function DeleteConfirmationModal({
             </Button>
           </div>
           <div>
-            <Button variant={"destructive"}>Delete</Button>
+            <Button onClick={onDelete} variant={"destructive"}>{loading ? "Deleting..." : "Delete"}</Button>
           </div>
         </div>
+        {error && <p className="text-red-500">{error.message}</p>}
       </Modal>
     </>
   );
