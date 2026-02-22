@@ -46,12 +46,8 @@ export default function TicketDetails({ id }: { id: string }) {
   };
 
   const deleteTicket = async () => {
-    try {
-      const response = await axios.delete(`/api/tickets/${id}`);
-      return response;
-    } catch (error) {
-      console.log(error);
-    }
+    const response = await axios.delete(`/api/tickets/${id}`);
+    return response;
   };
 
   const {
@@ -215,8 +211,8 @@ export default function TicketDetails({ id }: { id: string }) {
             <DeleteConfirmationModal
               open={showDeleteModal}
               onClose={() => setShowDeleteModal((prev) => !prev)}
-              onDelete={mutation.mutate}
-              loading={mutation?.isLoading}
+              onDelete={() => mutation.mutate()}
+              loading={mutation.isPending}
               error={mutation.error}
             />
           )}
