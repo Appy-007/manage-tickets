@@ -128,7 +128,7 @@ export default function TicketsComponent() {
     }
   };
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       queryKey: ["tickets", debouncedSearch, filterStatus, orderBy],
       queryFn: ({ pageParam = 1 }) =>
@@ -164,81 +164,103 @@ export default function TicketsComponent() {
 
   console.log(data);
 
-
   return (
     <>
-      <div className="pt-4 pl-16 pr-6 h-screen flex flex-col">
+      <div className="pt-4 max-md:pl-4 pl-16 pr-6 h-screen flex flex-col">
         <div id="header" className="shrink-0">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="font-semibold text-2xl">Support Tickets</h1>
-              <p className="font-sm">{data?.pages[0]?.total} tickets</p>
+              <h1 className="font-semibold max-md:text-lg text-2xl">
+                Support Tickets
+              </h1>
+              <p className="text-sm">
+                {data?.pages[0]?.total}{" "}
+                {data?.pages[0]?.total === 1 || data?.pages[0]?.total === 0
+                  ? "ticket"
+                  : "tickets"}
+              </p>
             </div>
-            <div>
-              <Button className="cursor-pointer" onClick={() => setShowAddTicketModal(true)}>
+            <div className="">
+              <Button
+                className="cursor-pointer"
+                onClick={() => setShowAddTicketModal(true)}
+              >
                 <FaPlus />
                 New Ticket
               </Button>
             </div>
           </div>
 
-          <div className="flex gap-4 items-center mt-6">
-            <div className="flex-1">
+          <div className="max-md:flex-col flex gap-4 max-md:items-start items-center mt-6">
+            <div className="flex-1 max-md:w-full">
               <Input
                 value={searchItem}
                 onChange={(event) => setSearchItem(event.target.value)}
                 placeholder="Search tickets ..."
+                className="max-md:text-xs max-md:h-8"
               />
             </div>
-            <div>
-              <Select value={filterStatus} onValueChange={setFilerStatus}>
-                <SelectTrigger className="w-45">
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="resolved">Resolved</SelectItem>
-                    <SelectItem value="all">All</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Select value={orderBy} onValueChange={setOrderBy}>
-                <SelectTrigger className="w-45">
-                  <SelectValue placeholder="Theme" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="-1">Newest First</SelectItem>
-                    <SelectItem value="1">Oldest First</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+            <div className="flex gap-4 max-md:gap-1 max-md:w-full">
+              <div className="max-md:w-2/3">
+                <Select value={filterStatus} onValueChange={setFilerStatus}>
+                  <SelectTrigger className="max-w-40 max-md:text-xs max-md:h-8">
+                    <SelectValue placeholder="All Statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="open">Open</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="resolved">Resolved</SelectItem>
+                      <SelectItem value="all">All</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="max-md:w-2/3">
+                <Select value={orderBy} onValueChange={setOrderBy}>
+                  <SelectTrigger className=" max-w-40 max-md:text-xs max-md:h-8">
+                    <SelectValue placeholder="Theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="-1">Newest First</SelectItem>
+                      <SelectItem value="1">Oldest First</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </div>
-
-        {data?.pages[0]?.data?.length === 0 && (
-          <div className="p-6 flex items-center justify-center">
-            <div>
-              <p className="font-bold text-xl">No tickets found.</p>
-            </div>
-          </div>
-        )}
 
         <div
           ref={ticketDivRef}
           className="flex flex-col gap-6 mt-6 pb-6 flex-1 overflow-y-auto"
         >
-          {data?.pages.map((page: any) =>
-            page.data.map((ticket: TicketType) => (
-              <Ticket key={ticket._id} ticket={ticket} />
-            )),
+          {isLoading ? (
+            <div className="p-6 flex items-center justify-center flex-1">
+              <p className="font-bold text-xl">Loading tickets...</p>
+            </div>
+          ) : (
+            <>
+              {data?.pages[0]?.data?.length === 0 && (
+                <div className="p-6 flex items-center justify-center">
+                  <div>
+                    <p className="font-bold text-xl">No tickets found.</p>
+                  </div>
+                </div>
+              )}
+              {data?.pages.map((page: any) =>
+                page.data.map((ticket: TicketType) => (
+                  <Ticket key={ticket._id} ticket={ticket} />
+                )),
+              )}
+            </>
           )}
         </div>
+        {isFetchingNextPage && (
+          <div className="p-4 text-center font-bold text-xl">Loading more...</div>
+        )}
         {showAddTicketModal && (
           <AddEditTicketModal
             modalTitle="Add Ticket"
@@ -248,10 +270,6 @@ export default function TicketsComponent() {
           />
         )}
       </div>
-
-      {isFetchingNextPage && (
-        <div className="p-4 text-center">Loading more...</div>
-      )}
     </>
   );
 }

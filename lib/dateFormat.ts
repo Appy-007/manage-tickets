@@ -1,7 +1,18 @@
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 export const formattedDate = (inputDate: string) => {
-  // format(date, "MMM d, yyyy h:mm a")
-  // MMM = Dec, d = 25, yyyy = 2025, h:mm = 9:55, a = PM
-  return format(new Date(inputDate), "MMM d, yyyy h:mm a");
+  const date = new Date(inputDate);
+
+  return format(
+    new Date(
+      Date.UTC(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
+        date.getUTCHours(),
+        date.getUTCMinutes()
+      )
+    ),
+    "MMM d, yyyy h:mm a"
+  );
 };

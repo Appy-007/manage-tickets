@@ -41,13 +41,6 @@ export default function AddEditTicketModal({
   selectedTicket?: TicketType;
   mode?: "add" | "edit";
 }) {
-  // const [title, setTitle] = useState("");
-  // const [description, setDescription] = useState("");
-  // const [status, setStatus] = useState<"open" | "in_progress" | "resolved">(
-  //   "open",
-  // );
-  // const [priority, setPriority] = useState<"1" | "2" | "3" | "4" | "5">("1");
-  // const [assignee, setAssignee] = useState("");
 
   const {
     register,
@@ -119,14 +112,15 @@ export default function AddEditTicketModal({
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <div className=" -mx-4 max-h-[70vh] overflow-y-auto px-4">
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form className="max-md text-left" onSubmit={handleSubmit(onSubmit)}>
             <FieldGroup>
               <FieldSet>
                 <FieldGroup>
-                  <Field>
+                  <Field className="max-md:text-xs">
                     <FieldLabel htmlFor="title">Title</FieldLabel>
                     <Input
                       id="title"
+                      className="max-md:text-xs max-md:h-8"
                       placeholder="Sample ticket 1 - Testing infinite scrolling"
                       {...register("title")}
                     />
@@ -142,6 +136,7 @@ export default function AddEditTicketModal({
                   <Field>
                     <FieldLabel htmlFor="description">Description</FieldLabel>
                     <Textarea
+                    className="max-md:text-xs"
                       id="description"
                       placeholder="Describe the isssue"
                       {...register("description")}
@@ -157,8 +152,8 @@ export default function AddEditTicketModal({
                     )}
                   </Field>
                   <div className="grid grid-cols-2 gap-4">
-                    <Field>
-                      <FieldLabel htmlFor="status">Status</FieldLabel>
+                    <Field >
+                      <FieldLabel  htmlFor="status">Status</FieldLabel>
                       <Controller
                         name="status"
                         control={control}
@@ -167,7 +162,7 @@ export default function AddEditTicketModal({
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger id="status">
+                            <SelectTrigger className="max-md:text-xs max-md:h-8" id="status">
                               <SelectValue placeholder="Resolved" />
                             </SelectTrigger>
                             <SelectContent>
@@ -200,7 +195,7 @@ export default function AddEditTicketModal({
                             onValueChange={field.onChange}
                             value={field.value}
                           >
-                            <SelectTrigger id="priority">
+                            <SelectTrigger id="priority" className="max-md:text-xs max-md:h-8">
                               <SelectValue placeholder="1" />
                             </SelectTrigger>
                             <SelectContent>
@@ -230,6 +225,7 @@ export default function AddEditTicketModal({
                       id="assignee"
                       placeholder="User 4"
                       {...register("assignee")}
+                      className="max-md:text-xs max-md:h-8"
                     />
                     <FieldDescription className="text-xs">
                       Leave empty if not assigned yet

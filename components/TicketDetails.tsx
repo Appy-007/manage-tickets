@@ -99,8 +99,8 @@ export default function TicketDetails({ id }: { id: string }) {
 
   return (
     <>
-      <div className="pt-4 pl-16 pr-6">
-        <div className="flex gap-6">
+      <div className="pt-4  max-md:pl-4 pl-16 pr-6">
+        <div className="flex max-md:gap-2 gap-6">
           <Button
             variant="ghost"
             className="cursor-pointer"
@@ -112,8 +112,8 @@ export default function TicketDetails({ id }: { id: string }) {
         </div>
         <div className="p-6 pr-4 pl-4 rounded-md border border-gray-400 mt-6">
           <div className="flex justify-between">
-            <div className="flex-1 flex gap-2">
-              <h1 className="font-bold">{ticket.title}</h1>
+            <div className="flex-1 max-md:flex-col flex gap-2">
+              <h1 className="font-bold max-md:text-md">{ticket.title}</h1>
               <div>
                 {" "}
                 <Badge
@@ -146,7 +146,7 @@ export default function TicketDetails({ id }: { id: string }) {
             </div>
           </div>
 
-          <div className="text-xs flex gap-4 mt-4">
+          <div className="text-xs flex flex-wrap gap-4 mt-4">
             <div className="flex gap-1 items-center">
               {" "}
               <PiWarningCircle
@@ -165,7 +165,7 @@ export default function TicketDetails({ id }: { id: string }) {
             {ticket.assignee && (
               <div className="flex gap-1 items-center">
                 {" "}
-                <FiUser /> <span>User {ticket.assignee}</span>
+                <FiUser /> <span>{ticket.assignee}</span>
               </div>
             )}
             <div className="flex gap-1 items-center">
@@ -175,10 +175,10 @@ export default function TicketDetails({ id }: { id: string }) {
           </div>
 
           <div className="mt-4">
-            <h2 className="font-semibold">Description</h2>
-            <p className="text-gray-600 text-sm">{ticket.description}</p>
+            <h2 className="font-semibold max-md:text-sm">Description</h2>
+            <p className="text-gray-600 max-md:text-xs text-sm">{ticket.description}</p>
           </div>
-          <div className="grid grid-cols-2 gap-4 mt-4 text-md">
+          <div className="grid grid-cols-2 gap-4 mt-4 max-md:text-xs text-md">
             <div>
               <h4 className="text-sm text-gray-500">Status</h4>
               <p>{ticket.status}</p>

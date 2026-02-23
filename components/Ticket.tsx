@@ -22,17 +22,17 @@ export default function Ticket({ ticket }: { ticket: TicketType }) {
         onClick={() => router.push(`/tickets/${ticket._id}`)}
         className="p-2 pr-4 pl-4 rounded-md border border-gray-400 cursor-pointer"
       >
-        <div className="flex justify-between">
+        <div className="flex max-md:gap-1 justify-between">
           <div className="flex-1">
-            <h2 className="font-semibold text-md">{ticket?.title}</h2>
-            <p className="text-sm">{ticket?.description}</p>
+            <h2 className="font-semibold max-md:text-sm text-md">{ticket?.title}</h2>
+            <p className="max-md:text-xs text-sm">{ticket?.description}</p>
           </div>
           <div>
             <Badge className={`${statusVariant} text-white`}>{ticket?.status}</Badge>
           </div>
         </div>
 
-        <div className="text-xs flex gap-2 mt-4">
+        <div className="text-xs flex flex-wrap gap-4 mt-4">
           <div className="flex gap-1 items-center">
             {" "}
             <PiWarningCircle  className={`${priorityVariant} `} /> <span>Priority {ticket?.priority}</span>
@@ -40,7 +40,7 @@ export default function Ticket({ ticket }: { ticket: TicketType }) {
           {ticket.assignee && (
             <div className="flex gap-1 items-center">
               {" "}
-              <FiUser /> <span>User {ticket?.assignee}</span>
+              <FiUser /> <span>{ticket?.assignee}</span>
             </div>
           )}
           <div className="flex gap-1 items-center">
